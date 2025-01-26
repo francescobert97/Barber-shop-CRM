@@ -1,0 +1,11 @@
+{
+    "customers": [
+        {
+            "id": "929wfceh0we8bh0324c8hb3208ch2384h0f8d4",
+            "fullname": "giancarlo minnone",
+            "mail": "giancarlo.minnone@gmail.com",
+            "services": [{"kit": "starter"}],
+            "lastAction": "2024-04-08T00:00:00Z"
+        }
+    ]
+}
