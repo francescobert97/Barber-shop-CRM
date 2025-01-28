@@ -32,22 +32,22 @@ const randomServiceGenerator = ():Services => {
         const appointmentDate =  new Date(new Date().getTime() - (generateRandomNumber(100) * 24 * 60 * 60 * 1000))
         const otherServices:OtherServices[] = ['beardConsulting' ,'Formation', 'homeBeardCut']
         const servicesPricing:PricingServices = { beardConsulting: 35,Formation: 80,  homeBeardCut: 20}
-        const servicesStatus:(Status | 'Postponed')[] = ['OrderEmitted', 'toBeEmitted', 'Canceled', 'Postponed']
+        const servicesStatus:(Status | 'Postponed')[] = ['OrderEmitted', 'ToBeEmitted', 'Canceled', 'Postponed']
             const types = otherServices[generateRandomNumber(otherServices.length)]
         return {
             id:uniqueId(),
             type: types ,
             price: servicesPricing[types],
-            dateAppointment: appointmentDate.toString(),
+            dateAppointment: appointmentDate.toISOString(),
             status:servicesStatus[generateRandomNumber(4)],
             amount: generateRandomNumber(4)+1,
-            purchaseDate: new Date(appointmentDate.getTime() - (generateRandomNumber(10) * 24 * 60 * 60 * 1000)).toString(),
+            purchaseDate: new Date(appointmentDate.getTime() - (generateRandomNumber(10) * 24 * 60 * 60 * 1000)).toISOString(),
         }
     }
     else {
         const kitType:Kit[]= ['Starter', 'Advanced', 'Ultimate']
         const kitPricing:KitPricing = {Starter: 49, Advanced: 56, Ultimate:69}
-        const kitStatus:Status[] = ['OrderEmitted', 'toBeEmitted', 'Canceled']
+        const kitStatus:Status[] = ['OrderEmitted', 'ToBeEmitted', 'Canceled']
 
         const kit:Kit = kitType[generateRandomNumber(kitType.length)]
 
@@ -56,7 +56,7 @@ const randomServiceGenerator = ():Services => {
             type: kit,
             price: kitPricing[kit],
             status: kitStatus[generateRandomNumber(kitStatus.length)], 
-            purchaseDate: new Date(new Date().getTime() - (generateRandomNumber(100) * 24 * 60 * 60 * 1000)).toString(),
+            purchaseDate: new Date(new Date().getTime() - (generateRandomNumber(100) * 24 * 60 * 60 * 1000)).toISOString(),
         }
         return randomService
     }

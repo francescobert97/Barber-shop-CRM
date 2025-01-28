@@ -18,12 +18,11 @@ export interface IKit extends IService {
     status: Status
 }
 
-interface IOtherServices extends IService{
+export interface IOtherServices extends IService{
     type: OtherServices 
     price: PricingServices[OtherServices],
     dateAppointment: string,
     status:Status | 'Postponed'
-
     amount:number
 }
 
@@ -50,4 +49,4 @@ export type KitPricing = {
 export type Services = IKit | IOtherServices;
 
 
-export type Status = 'OrderEmitted'| 'toBeEmitted' | 'Canceled'
+export type Status = 'OrderEmitted'| 'ToBeEmitted' | 'Canceled'
