@@ -1,4 +1,4 @@
-import { Status } from "../../shared/models/models"
+import { Services, Status } from "../../shared/models/models"
 import { useDataIstance } from "../useDataIstance/useDataIstance"
 
 export const useIncome = () => {
@@ -12,60 +12,93 @@ export const useIncome = () => {
 
 console.log('total money: ' + total)
 
-const getSingleModeMoney = (status: Status | 'Postponed') => {
+      const getGeneralBalanceStatus = (mode: IAll | IPartial, period:number = 30) => {
+            const actualDate = new Date();
+            const maxDate = new Date()
+            maxDate.setDate(actualDate.getDate() - period)
 
-      const result =  allServices.reduce((acc,curr) => {
-              if(status === curr.status)return 'amount' in  curr? (curr.price * curr.amount) + acc : acc +curr.price
-              else return acc;
-        }, 0)
-      return result
-  }
+
+            if(mode.statusType) {
+                return  onlypassedPROVA((statusTypes) => {              
+                        return allServices.reduce((acc:Record<string, Record<string, IData>>,curr) =>{
+                              const purchaseDate = new Date(curr.purchaseDate)
+                         
+
+                                    if(statusTypes && statusTypes.includes(curr.status)) {
+                                          if(purchaseDate >= maxDate) {
+                                                if(!acc['PeriodMode']) acc['PeriodMode'] = {}
+                                                acc['PeriodMode'] = accumulatorCondition(acc['PeriodMode'],curr)
+                                          }
+      
+                                          if(!acc['TotalMode']) acc['TotalMode'] = {}
+                                                acc['TotalMode'] = accumulatorCondition(acc['TotalMode'],curr)
+                                    }
+                         
+                  
+                                    return acc
+                        } , {})
+                  
+                  },mode.statusType)
+            }
+            else {
+                return  onlypassedPROVA(() => {
+                        return allServices.reduce((acc:Record<string, Record<string,IData>>,curr) =>{
+                              const purchaseDate = new Date(curr.purchaseDate)
+                         
+ 
+                                          console.log(purchaseDate >= maxDate)
+                                          if(purchaseDate >= maxDate) {
+                                                if(!acc['PeriodMode']) acc['PeriodMode'] = {}
+                                                acc['PeriodMode'] = accumulatorCondition(acc['PeriodMode'],curr)
+                                          }
+                                          if(!acc['TotalMode']) acc['TotalMode'] = {}
+                                                acc['TotalMode'] = accumulatorCondition(acc['TotalMode'],curr)
+                                    return acc
+                        } , {})
+                  })
+            }
+
   
-
-  const getMultiModeMoney = () => {
-      const result =  allServices.reduce((acc:Record<string, {money:number, productAmount:number}>,curr) => {
+      }
+      const accumulatorCondition = (acc:Record<string, IData>,curr:Services) => {
             acc[curr.status] = acc[curr.status] || { money: 0, productAmount: 0 };
-
-      acc[curr.status].money  += ('amount' in curr? (curr.price * curr.amount) : curr.price )
-      acc[curr.status].productAmount  += (curr.id? 1 : 0);
-            return acc
-      }, {})
-      return result
-
-}
-
-const getEarnedMoneyInPeriod = ( mode:IMode) => {
-      const actualDate = new Date();
-
-      const subCondition = (subMode:string, purchaseDate:Date):Record<string, number> => {
-            if(subMode === 'Day') return  {current: actualDate.getDay(), purchase: purchaseDate.getDay()}
-            else if(subMode === 'Month')  return  {current: actualDate.getMonth(), purchase: purchaseDate.getMonth()}
-            else  return  {current: actualDate.getFullYear(), purchase: purchaseDate.getFullYear()}
+            acc[curr.status].money += ('amount' in curr? (curr.price * curr.amount) : curr.price )
+            acc[curr.status].productAmount += (curr.id? 1 : 0)
+            return acc;
       }
       
-      const result = allServices.reduce((acc:Record<string, {money:number, productAmount:number}>,curr) =>{
-            const purchaseDate = new Date(curr.purchaseDate)
-                  const {current, purchase} = subCondition(mode.period, purchaseDate);
-                  if(current === purchase  ) {
-                        acc[curr.status] = acc[curr.status] || { money: 0, productAmount: 0 };
-
-                        acc[curr.status].money += ('amount' in curr? (curr.price * curr.amount) : curr.price )
-                        acc[curr.status].productAmount += (curr.id? 1 : 0)
-                        return acc;
-                  }else return acc;
+      const onlypassedPROVA = (callback:(statusTypes?:(Status | 'Postponed')[]) => void,statusTypes?:(Status | 'Postponed')[] ) => {    
+            let result; 
+            if(statusTypes) {
+                   result = callback(statusTypes)
+            }else {
+                  result = callback()
+            }
             
-      } , {})
-      return result
+            console.log(result)
+            return result
+      }
+      
+
+            getGeneralBalanceStatus({mode:'All'}, 100)
+return { getGeneralBalanceStatus}
 }
 
 
-return {getMultiModeMoney, getSingleModeMoney, getEarnedMoneyInPeriod}
+interface IData {
+      money:number,
+      productAmount:number
 }
-
-
- type PeriodMode =  'Month' | 'Day' | 'Year'
  interface IMode {
-      statusType: Status | 'Postponed'
-      period: PeriodMode
+      mode:'All' | 'Partial'
  }
+ interface IPartial extends IMode {
+      mode:'Partial'
+      statusType: (Status | 'Postponed')[]
+ }
+ interface IAll extends IMode{
+      mode: 'All'
+      statusType?: never
+ }
+
 

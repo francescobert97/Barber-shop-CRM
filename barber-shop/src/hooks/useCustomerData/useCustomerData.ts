@@ -1,16 +1,16 @@
 import { Services } from "../../shared/models/models"
 import { useDataIstance } from "../useDataIstance/useDataIstance"
 
-export const useCustomerData = () => {
+export const useCustomerData = (newerDate:number = 10, oldestDate:number = 90) => {
            const data= useDataIstance()
   
 
-const getAll = () => {
+const getCustomerInformation = () => {
      const actualDate = new Date();
-     const threeMonthAgoDate = new Date()
-     const bestDate = new Date()
-     threeMonthAgoDate.setDate(actualDate.getDate() - 90)
-     bestDate.setDate(actualDate.getDate() - 10)
+     const minDate = new Date()
+     const maxDate = new Date()
+     minDate.setDate(actualDate.getDate() - oldestDate)
+     maxDate.setDate(actualDate.getDate() - newerDate)
      const result = data.map(customer => {
           const lastBoughtData = customer.services.reduce((oldest:Services, curr:Services) => {
                const oldestDate = new Date(oldest.purchaseDate);
@@ -19,7 +19,7 @@ const getAll = () => {
               }).purchaseDate
      
           const lastBoughtDataConverted = new Date(lastBoughtData)
-         const customerCondition = getCustomerCondition(lastBoughtDataConverted, bestDate, threeMonthAgoDate)
+         const customerCondition = getCustomerCondition(lastBoughtDataConverted, maxDate, minDate)
          
            return {customer, lastBoughtData, customerCondition}
       })
@@ -27,9 +27,12 @@ const getAll = () => {
       return result
 }
 
-const getCustomerCondition = (purchaseDate:Date, bestDate:Date, threeMonthAgoDate:Date) => {
-     if (purchaseDate < threeMonthAgoDate) return "bad";
-     if (purchaseDate > bestDate) return "best";
+const getCustomerCondition = (purchaseDate:Date, maxDate:Date, minDate:Date) => {
+     if (purchaseDate < minDate) return "bad";
+     if (purchaseDate > maxDate) return "best";
      return "normal";
  }
+
+ console.log(getCustomerInformation())
+
 }

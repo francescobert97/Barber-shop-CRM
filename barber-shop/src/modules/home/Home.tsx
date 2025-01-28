@@ -12,13 +12,7 @@ function Home() {
     const customerHook = useCustomerData()
     const [data, setData] = useState<IHomeData>({} as IHomeData);
     useEffect(() => {
-        console.log(myhook.getMultiModeMoney())
-        console.log(myhook.getEarnedMoneyInPeriod({statusType:'OrderEmitted', period:'Month'}))
-        
-        setData({
-            allMoney: myhook.getMultiModeMoney(),
-            MonthlyEarn: myhook.getEarnedMoneyInPeriod({statusType:'OrderEmitted', period:'Month'})
-        })
+
     }, [])
     return (
         <div>
