@@ -1,3 +1,5 @@
+import { IData } from "../../hooks/useIncome/useIncome"
+
 export interface ICustomer {
     id: string,
     fullname: string,
@@ -22,11 +24,11 @@ export interface IOtherServices extends IService{
     type: OtherServices 
     price: PricingServices[OtherServices],
     dateAppointment: string,
-    status:Status | 'Postponed'
+    status:AdvancedStatus
     amount:number
 }
 
-
+export type AdvancedStatus = Status | 'Postponed'
 
 export type Kit = 'Starter' | 'Advanced' | 'Ultimate'
 
@@ -50,3 +52,10 @@ export type Services = IKit | IOtherServices;
 
 
 export type Status = 'OrderEmitted'| 'ToBeEmitted' | 'Canceled'
+
+
+
+export interface IHomeDeta {
+    PeriodMode: Record<AdvancedStatus, IData>,
+    TotalMode:Record<AdvancedStatus, IData>
+} 

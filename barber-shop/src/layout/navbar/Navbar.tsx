@@ -1,4 +1,5 @@
 import { AppBar, Box, Button, Toolbar, Typography } from "@mui/material";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
 return (
@@ -6,13 +7,13 @@ return (
     <AppBar position="static" color="primary">
       <Toolbar>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          My Navbar
+          La squadra della barba
         </Typography>
         <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2 }}>
-          <Button color="inherit">Home</Button>
-          <Button color="inherit">About</Button>
-          <Button color="inherit">Clienti dormienti</Button>
-          <Button color="inherit">Contact</Button>
+          <Button component={Link} to={'/'}  color="inherit">Home</Button>
+          <Button color="inherit"  component={Link} to={'/upselling-customers'}>Clienti da upsellare</Button>
+        <Button   component={Link} to={'/customers-information'} color="inherit">Lista Clienti</Button>
+        <Button   component={Link} to={'/zombie'} color="inherit">Clienti dormienti</Button>
         </Box>
       </Toolbar>
     </AppBar>

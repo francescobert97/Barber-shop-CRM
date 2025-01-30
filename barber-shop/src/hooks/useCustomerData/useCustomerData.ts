@@ -1,3 +1,4 @@
+import { ICustomerInformations } from "../../modules/customers/Customers"
 import { Services } from "../../shared/models/models"
 import { useDataIstance } from "../useDataIstance/useDataIstance"
 
@@ -5,7 +6,7 @@ export const useCustomerData = (newerDate:number = 10, oldestDate:number = 90) =
            const data= useDataIstance()
   
 
-const getCustomerInformation = () => {
+const getCustomerInformation = ():ICustomerInformations[] => {
      const actualDate = new Date();
      const minDate = new Date()
      const maxDate = new Date()
@@ -19,7 +20,7 @@ const getCustomerInformation = () => {
               }).purchaseDate
      
           const lastBoughtDataConverted = new Date(lastBoughtData)
-         const customerCondition = getCustomerCondition(lastBoughtDataConverted, maxDate, minDate)
+         const customerCondition: 'bad' | 'normal' | 'best' = getCustomerCondition(lastBoughtDataConverted, maxDate, minDate)
          
            return {customer, lastBoughtData, customerCondition}
       })
@@ -33,6 +34,6 @@ const getCustomerCondition = (purchaseDate:Date, maxDate:Date, minDate:Date) => 
      return "normal";
  }
 
- console.log(getCustomerInformation())
-
+ //console.log(getCustomerInformation())
+return {getCustomerInformation}
 }
