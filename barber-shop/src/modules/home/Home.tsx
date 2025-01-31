@@ -1,83 +1,116 @@
-import { useEffect, useRef, useState } from "react"
-import { IData, useIncome } from "../../hooks/useIncome/useIncome"
-import { AdvancedStatus } from "../../shared/models/models";
+import { useEffect, useRef, useState } from "react";
+import { useIncome } from "../../hooks/useIncome/useIncome";
 import Chart from "../../components/chart/Chart";
-import { TextField } from "@mui/material";
+import { TextField, Grid, Box, Typography } from "@mui/material";
 import ShowDataBox from "./components/show-data-box/ShowDataBox";
-
- interface IHomeData {
-    allMoney: Record<AdvancedStatus, IData>,
-    MonthlyEarn:Record<AdvancedStatus, IData>
-} 
+import { DATA_SUMMARY_FALL, IDataSummary } from "../../shared/models/periodfilter.model";
 
 function Home() {
-    const myhook = useIncome()
-    const [data, setData] = useState<IHomeData>({} as IHomeData);
-    const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+    const {getGeneralBalanceStatus} = useIncome();
+    const [data, setData] = useState<IDataSummary>({...DATA_SUMMARY_FALL});
+    const isInitialized = useRef(false);
 
     useEffect(() => {
-       const {PeriodMode, TotalMode} = myhook.getGeneralBalanceStatus({mode:'All'}, 100)
-           setData(
-            {
-                allMoney: TotalMode,
-                MonthlyEarn: PeriodMode}) 
-    }, [])
+        if (isInitialized.current) return;
+        isInitialized.current = true;
 
+        const { PeriodMode, TotalMode } = getGeneralBalanceStatus({ mode: 'All' }, 30);
+        setData({
+            TotalMode: TotalMode,
+            PeriodMode: PeriodMode
+        });    }, [getGeneralBalanceStatus]);
 
-   const changePeriodTime = (day:number) => {
-    clearTimeout(timeoutRef.current);
+    const changePeriodTime = (day: number) => {
+        const newPulledData = getGeneralBalanceStatus({ mode: 'All', updating: true }, day);
+        setData(prev => ({ ...prev, PeriodMode: { ...newPulledData.PeriodMode } }));
+    };
 
-    const newPulledData = myhook.getGeneralBalanceStatus({mode:'All', updating:true}, day);
-    timeoutRef.current = setTimeout(() =>     setData(prev =>({...prev, MonthlyEarn: {...newPulledData.PeriodMode}})), 500)
-
-   }
     return (
-        <div className="text-light container d-flex flex-column justify-content-center vh-100">
-            <div className=" my-2 d-flex justify-content-between col-sm-6 mx-auto">
-                {data.MonthlyEarn && <ShowDataBox data={Object.entries(data.MonthlyEarn).map(([key,value]) => ({name:key , value: value}))} />}
-                {data.allMoney && <ShowDataBox data={Object.entries(data.allMoney).map(([key,value]) => ({name:key , value: value}))} />}
-            </div>
-    
-            <div className="col-sm-6 mx-auto">
-                <strong className="text-dark">Entrate periodizzate(default mensile):</strong>
-                <TextField
-                    id="outlined-basic"
-                    type="number"
-                    label="Inserisci un numero"
-                    variant="outlined"
-                    onChange={(event) => {
-                        const value = Number(event.target.value);
-                        changePeriodTime(value);  
-                    }}
-                    fullWidth
-                 />
-                <div className="d-flex">
-                  { data.MonthlyEarn &&
-                  <>
-                    <Chart data={Object.entries(data.MonthlyEarn).map(([key,value]) => ({name:key , value: value.money}))} />
-                    <Chart data={Object.entries(data.MonthlyEarn).map(([key,value]) => ({name:key , value: value.productAmount }))} />
-                  </>
-   
-                }
-                </div>
-            </div>
-   
-            <div className=" col-sm-6 mx-auto">
-                Entrate totali:
-                <div className="d-flex">
-                { data.allMoney &&
-                    <>
-                    <Chart data={Object.entries(data.allMoney).map(([key,value]) => ({name:key , value: value.money }))} />
-                    <Chart data={Object.entries(data.allMoney).map(([key,value]) => ({name:key , value: value.productAmount }))} />
-                    </>
-                } 
-                </div>
-           
-        </div>
-     
+        <Box sx={{ padding: 2 }}>
+            <Typography variant="h4" gutterBottom align="center" color="textPrimary">
+                Controllo bilancio
+            </Typography>
+            
+            <Grid container spacing={2} justifyContent="center">
+                <Grid item xs={12} sm={6} md={5}>
+                    {data.PeriodMode && 
+                        <ShowDataBox 
+                            data={Object.entries(data.PeriodMode).map(([key, value]) => ({ name: key, value: value }))} 
+                        />
+                    }
+                </Grid>
 
-    </div>
-    )
+                <Grid item xs={12} sm={6} md={5}>
+                    {data.TotalMode && 
+                        <ShowDataBox 
+                            data={Object.entries(data.TotalMode).map(([key, value]) => ({ name: key, value: value }))} 
+                        />
+                    }
+                </Grid>
+            </Grid>
+
+            <Grid container spacing={2} justifyContent="center" sx={{ marginTop: 4 }}>
+                <Grid item xs={12} sm={6} md={5}>
+                    <Typography variant="body1" color="textPrimary">
+                        Bilancio periodizzato (default mensile):
+                    </Typography>
+                    <Box sx={{ marginTop: 2 }}>
+                        <TextField
+                            id="outlined-basic"
+                            type="number"
+                            label="Inserisci un numero"
+                            variant="outlined"
+                            onChange={(event) => {
+                                const value = Number(event.target.value);
+                                changePeriodTime(value);
+                            }}
+                            fullWidth
+                        />
+                    </Box>
+                    <Box sx={{ marginTop: 2 }}>
+                        {data.PeriodMode && (
+                            <Grid container spacing={2} justifyContent="center">
+                                <Grid item xs={12} sm={6} md={6}>
+                                    <Chart 
+                                        data={Object.entries(data.PeriodMode).map(([key, value]) => ({ name: key, value: value.money }))}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={6} md={6}>
+                                    <Chart 
+                                        data={Object.entries(data.PeriodMode).map(([key, value]) => ({ name: key, value: value.productAmount }))}
+                                    />
+                                </Grid>
+                            </Grid>
+                        )}
+                    </Box>
+                </Grid>
+            </Grid>
+
+            <Grid container spacing={2} justifyContent="center" sx={{ marginTop: 4 }}>
+                <Grid item xs={12} sm={6} md={5}>
+                    <Typography variant="body1" color="textPrimary">
+                        Entrate totali:
+                    </Typography>
+                    <Box sx={{ marginTop: 2 }}>
+                        {data.TotalMode && (
+                            <Grid container spacing={2} justifyContent="center">
+                                <Grid item xs={12} sm={6} md={6}>
+                                    <Chart 
+                                        data={Object.entries(data.TotalMode).map(([key, value]) => ({ name: key, value: value.money }))}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={6} md={6}>
+                                    <Chart 
+                                        data={Object.entries(data.TotalMode).map(([key, value]) => ({ name: key, value: value.productAmount }))}
+                                    />
+                                </Grid>
+                            </Grid>
+                        )}
+                    </Box>
+                </Grid>
+            </Grid>
+        </Box>
+    );
 }
 
-export default Home
+export default Home;

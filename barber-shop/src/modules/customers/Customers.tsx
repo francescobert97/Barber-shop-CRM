@@ -1,12 +1,10 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import BasicTable from "../../components/BasicTable/BasicTable";
 import { useCustomerData } from "../../hooks/useCustomerData/useCustomerData";
-import { ICustomer } from "../../shared/models/models";
-export interface ICustomerInformations  {
-  customer:ICustomer,
-   lastBoughtData:string,
-    customerCondition: 'bad' | 'normal' | 'best'
-  }
+import { ICustomerInformations } from "../../hooks/useCustomerData/models/usecustomer.model";
+import { Button } from "@mui/material";
+import { useLocation } from "react-router-dom";
+
   const getToUpsellList = (arr:ICustomerInformations[]) => {
     const result = arr.filter(customer => {
     
@@ -15,12 +13,13 @@ export interface ICustomerInformations  {
       
          return toUpsell.length > 0 && discard.length === 0;
   })
-  console.log(result)
 
   return result
 }
+
 export const Customers = ({singleType, mode}:{singleType:'bad' | 'normal' | 'best' | 'all', mode?:'Upselling'}) => {
       const customerHook = useCustomerData()
+      const location = useLocation();
      const memoizedCustomers =  useMemo(() =>{
       if(mode)return  getToUpsellList(customerHook.getCustomerInformation())
       else return customerHook.getCustomerInformation()
@@ -28,26 +27,29 @@ export const Customers = ({singleType, mode}:{singleType:'bad' | 'normal' | 'bes
     const [limit, setLimit] = useState(0)
     const breakpointTypeReference =  useRef(0) 
 
- 
+     useEffect(()=>setLimit(0) ,[location.pathname])
 
-  const pageSize = 30;
+  const pageSize = 20;
     const visibleClient = useMemo(() => {
         const filteredCustomers = []
+        const filteredCustBreakOverCust = breakpointTypeReference.current >= memoizedCustomers.length;
       if(singleType !== 'all') {
         for (let i = limit; i < memoizedCustomers.length; i++) {
+         
           if(filteredCustomers.length === pageSize) {
-            if(breakpointTypeReference.current >= memoizedCustomers.length) breakpointTypeReference.current = 0
+            if(filteredCustBreakOverCust) breakpointTypeReference.current = 0
   
             breakpointTypeReference.current = i
           };
           
           const customer = memoizedCustomers[i];
-          if(breakpointTypeReference.current >= memoizedCustomers.length) breakpointTypeReference.current = 0
+          if(filteredCustBreakOverCust) breakpointTypeReference.current = 0
   
           if(customer.customerCondition === singleType)filteredCustomers.push(customer)
         }
         return filteredCustomers
-      }else {
+      }
+      else {
           const slicedArray = memoizedCustomers.slice(limit, limit + pageSize);
           return slicedArray
       }
@@ -59,10 +61,10 @@ export const Customers = ({singleType, mode}:{singleType:'bad' | 'normal' | 'bes
 
 const scrollPage = (operation:'next' | 'previous', ) => {
   if(operation === 'next') { 
-    if ((limit + pageSize) < memoizedCustomers.length)setLimit(prev => prev + pageSize);
+    if(visibleClient.length === pageSize) setLimit(prev => prev+pageSize)
   }
 
-  if(operation === 'previous') {
+  if(operation === 'previous') {    
     if ((limit - pageSize) > 0) setLimit(prev => prev - pageSize);
     else setLimit(0)
   }
@@ -72,18 +74,19 @@ const scrollPage = (operation:'next' | 'previous', ) => {
 
 
   return (
-    <>
+    <div key={location.pathname}>
     <BasicTable mode={mode} data={visibleClient} />
-    {singleType === 'all' &&
-      <>
-        <button onClick={() => scrollPage('previous')}>PREVIUS BASIC</button>
-        <button onClick={() =>scrollPage('next')}>NEXT BASIC</button>
-      </>
-    }
+      <div className="d-flex justify-content-center mt-2 gap-5">
+        {limit > 0 && <Button variant="contained" color="primary" onClick={() => scrollPage('previous')}>Prev</Button>}
+        {visibleClient.length === pageSize && <Button variant="contained" color="primary" onClick={() =>scrollPage('next')}>Next</Button>}
+      </div>
 
-    </>
+
+    </div>
   );
 }
 
 
 export default Customers;
+
+//{singleType === 'all' &&

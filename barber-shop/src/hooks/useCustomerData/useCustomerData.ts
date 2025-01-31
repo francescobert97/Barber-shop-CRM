@@ -1,9 +1,9 @@
-import { ICustomerInformations } from "../../modules/customers/Customers"
-import { Services } from "../../shared/models/models"
+import { ICustomer, Services } from "../../shared/models/datacustomer.model"
 import { useDataIstance } from "../useDataIstance/useDataIstance"
+import { ICustomerInformations } from "./models/usecustomer.model"
 
 export const useCustomerData = (newerDate:number = 10, oldestDate:number = 90) => {
-           const data= useDataIstance()
+           const data:ICustomer[]= JSON.parse(JSON.stringify(useDataIstance()))
   
 
 const getCustomerInformation = ():ICustomerInformations[] => {

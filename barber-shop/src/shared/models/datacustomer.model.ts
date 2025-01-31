@@ -1,4 +1,3 @@
-import { IData } from "../../hooks/useIncome/useIncome"
 
 export interface ICustomer {
     id: string,
@@ -52,10 +51,3 @@ export type Services = IKit | IOtherServices;
 
 
 export type Status = 'OrderEmitted'| 'ToBeEmitted' | 'Canceled'
-
-
-
-export interface IHomeDeta {
-    PeriodMode: Record<AdvancedStatus, IData>,
-    TotalMode:Record<AdvancedStatus, IData>
-} 

@@ -1,5 +1,5 @@
+import { Services } from "../../shared/models/datacustomer.model";
 
-import { Services } from '../../shared/models/models';
 
 
 const CmTooltip = ({services}:{services:Services[]}) => {
