@@ -5,8 +5,9 @@ const CmTooltip = ({ services }: { services: Services[] }) => {
   const renderServices = (services: Services[]) => {
     return (
       <Box
-        className="position-absolute start-50 translate-middle-x"
+        className="position-absolute start-50 translate-middle-x z-index-1"
         sx={{
+          zIndex: 999,
           backgroundColor: "primary.main",
           borderRadius: 2,
           color: "white",

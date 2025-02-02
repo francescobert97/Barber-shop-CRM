@@ -6,10 +6,9 @@ const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 export default function Chart({ data }: { data: { name: string, value: number }[] }) {
   const [dimensions, setDimensions] = useState({ width: 300, height: 300 });
 
-  // Funzione per aggiornare le dimensioni del contenitore
   useEffect(() => {
     const handleResize = () => {
-      const width = window.innerWidth < 600 ? 250 : 300;
+      const width = window.innerWidth < 600 ? 270 : 300;
       const height = width;
       setDimensions({ width, height });
     };
