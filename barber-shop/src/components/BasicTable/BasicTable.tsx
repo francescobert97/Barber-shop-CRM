@@ -10,6 +10,14 @@ import React, { useState } from 'react';
 import { ICustomer } from '../../shared/models/datacustomer.model';
 import { ICustomerInformations } from '../../hooks/useCustomerData/models/usecustomer.model';
 
+const formattingDate = (isoDate:string) => {
+  return new Date(isoDate).toLocaleDateString("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric"
+  });
+}
+
 export default function BasicTable({data, mode}:{data:ICustomerInformations[], mode?:'Upselling'} ){
   const [show, setShow] = useState({id: '0', show:false})
   const showData = (id:string) =>{
@@ -52,7 +60,7 @@ export default function BasicTable({data, mode}:{data:ICustomerInformations[], m
               <TableCell  align="right">{customer.customer.mail}</TableCell>
               <TableCell align="right">{customer.customer.services.length}</TableCell>
               <TableCell align="right">{customer.customerCondition}</TableCell>
-              <TableCell align="right">{customer.lastBoughtData}</TableCell>
+              <TableCell align="right">{formattingDate(customer.lastBoughtData)}</TableCell>
               <TableCell align="right"><a href={`mailto:${customer.customer.mail}?subject=La squadra della barba&body=${publishMessage(customer.customer.fullname)}`}>Clicca per contattare</a></TableCell>
             </TableRow>
   </React.Fragment>
